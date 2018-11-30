@@ -82,16 +82,16 @@ public class CurrentProject {
             return _resources;
     }
 
+    //TASK 2-1 SMELL WITHIN A CLASS
+    //long method that could pass the project object rather than having
+    //to do some of the work itself.  
     public static void set(IProject project) {
         if (project.getID().equals(_project.getID())) return;
-        ITaskList newtasklist = CurrentStorage.get().openTaskList(project);
-        INoteList newnotelist = CurrentStorage.get().openNoteList(project);
-        IResourcesList newresources = CurrentStorage.get().openResourcesList(project);
-        notifyListenersBefore(project, newnotelist, newtasklist, newresources);
+        notifyListenersBefore(project);
         _project = project;
-        _tasklist = newtasklist;
-        _notelist = newnotelist;
-        _resources = newresources;
+        _tasklist =  CurrentStorage.get().openTaskList(project);
+        _notelist = CurrentStorage.get().openNoteList(project);
+        _resources = CurrentStorage.get().openResourcesList(project);
         notifyListenersAfter();
         Context.put("LAST_OPENED_PROJECT_ID", project.getID());
     }
@@ -104,7 +104,10 @@ public class CurrentProject {
         return projectListeners;
     }
 
-    private static void notifyListenersBefore(IProject project, INoteList nl, ITaskList tl, IResourcesList rl) {
+    private static void notifyListenersBefore(IProject project) {
+        ITaskList tl = CurrentStorage.get().openTaskList(project);
+        INoteList nl = CurrentStorage.get().openNoteList(project);
+        IResourcesList rl = CurrentStorage.get().openResourcesList(project);
         for (int i = 0; i < projectListeners.size(); i++) {
             ((IProjectListener)projectListeners.get(i)).projectChange(project, nl, tl, rl);
             /*DEBUGSystem.out.println(projectListeners.get(i));*/
